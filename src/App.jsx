@@ -1,74 +1,96 @@
-import { useState } from "react"
+import { useState,useCallback,useEffect,useRef} from "react"
 
 function App() {
-  const [Colour, setColour] = useState("olive")
 
-  return (
-    <>
-      <div className="w-full h-screen duration-200"
-      style={{backgroundColor:Colour}}
-      >
-        <div className="fixed flex flex-wrap
-        justify-center bottom-12 inset-x-0 px-2">
+    const[length,setlength]=useState(8)
+    const[numbers,setnumber]=useState(false);
+    const[character,setcharacter]=useState(false)
+    const[Password,setpass]=useState("")
+    
+    const passwordRef=useRef(null)
 
-          <div className="fixed flex-wrap justify-center gap-3 
-          shadow-lg bg-white px-3 py-2 rounded-3xl">
+    const passwordGenerator = useCallback(() => {
+    let pass = ""
+    let str = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
+    if (numbers){
+      str += "0123456789"
+    }
+    if (character){
+      str += "!@#$%^&*-_+=[]{}~`"
+    }
 
-            <button
-            onClick={() => setColour("red")}
-            className="outline-none px-4 py-1 rounded-full
-            text-white shadow-lg"
-            style={{backgroundColor:"red"}}>
-            Red</button>
+    for (let i = 1; i<=length; i++) {
+      let char = Math.floor(Math.random() * str.length + 1)
+      pass += str.charAt(char)
+    }
 
-            <button
-            onClick={() => setColour("green")}
-            className="outline-none px-4 py-1 rounded-full
-            text-white shadow-lg"
-            style={{backgroundColor:"green"}}>
-            Green</button>
+    setpass(pass)
 
-            <button
-            onClick={() => setColour("blue")}
-            className="outline-none px-4 py-1 rounded-full
-            text-white shadow-lg"
-            style={{backgroundColor:"blue"}}>
-            Blue</button>
+    }, [length, numbers, character, setpass])
 
-            <button
-            onClick={() => setColour("violet")}
-            className="outline-none px-4 py-1 rounded-full
-            text-white shadow-lg"
-            style={{backgroundColor:"violet"}}>
-            Violet</button>
+    const copypasswordtoclip=useCallback(() => {
+      passwordRef.current?.select()
+      //passwordRef.current?.setSelectionRange(0,5)
+      window.navigator.clipboard.writeText(Password)
+    },[Password])
 
-            <button
-            onClick={() => setColour("yellow")}
-            className="outline-none px-4 py-1 rounded-full
-            text-white shadow-lg"
-            style={{backgroundColor:"yellow"}}>
-            Yellow</button>
+    useEffect(() => {passwordGenerator()},[length,numbers,character,passwordGenerator])
 
-            <button
-            onClick={() => setColour("pink")}
-            className="outline-none px-4 py-1 rounded-full
-            text-white shadow-lg"
-            style={{backgroundColor:"pink"}}>
-            Pink</button>
+    return(
+      <>
+      <div className="w-full max-w-mid mx-auto shadow-md rounded-lg
+      px-4 py-3 my-8 text-orange-700 bg-gray-700">
+        <h1 className="text-white text-center">Password Generator</h1>
+        <div className="flex shadow rounded-lg overflow-hidden mb-4 ">
+          <input type="text"
+          value={Password}
+          className="outline-none w-full py-1 px-3"
+          placeholder="password"
+          readOnly
+          ref={passwordRef}/>
+          <button
+          onClick={copypasswordtoclip}
+          className="outline-none bg-blue-700 text-white px-3 py-0.5 shrink-0 hover:bg-sky-900">
+            Copy</button>
+        </div>
+        <div className="flex text-sm gap-x-2">
+          <div className="flex item-center gap-x-1">
+            <input
+            type="range"
+            min={8}
+            max={50}
+            value={length}
+            className="cursor-pointer"
+            onChange={(e) => {setlength(e.target.value)}}
+            />
+            <label>length:{length}</label>
+          </div>
+          <div className="flex item-center gap-x-1">
+            <input
+            type="checkbox"
+            defaultChecked={numbers}
+            id="numberInput"
+            onChange={() => {
+              setnumber((prev)=!prev)
+            }}
+            />
+            <label htmlFor="numberInput">Number</label>
+          </div>
 
-            <button
-            onClick={() => setColour("black")}
-            className="outline-none px-4 py-1 rounded-full
-            text-white shadow-lg"
-            style={{backgroundColor:"black"}}>
-            Black</button>
-
-
+          <div className="flex item-center gap-x-1">
+            <input
+            type="checkbox"
+            defaultChecked={character}
+            id="charInput"
+            onChange={() => {
+              setcharacter((prev)=!prev)
+            }}
+            />
+            <label htmlFor="charInput">Character</label>
           </div>
         </div>
       </div>
-    </>
-  )
+      </>
+    )
 }
-
 export default App
